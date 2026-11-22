@@ -137,7 +137,7 @@ for (const album of cfg.albums) {
     else loadPlayer(album.title, src);
   }, byId('soon'));
 }
-if (cfg.songs?.length) addChoice(tabs, 'Все песни', () => {
+if (cfg.songs?.length) addChoice(tabs, cfg.allSongs?.title || 'Все песни', () => {
   resetSection(cfg.allSongs);
   byId('player').replaceChildren();
   songList.hidden = false;
@@ -145,6 +145,7 @@ if (cfg.songs?.length) addChoice(tabs, 'Все песни', () => {
     const src = embedUrl(track.iframe);
     if (src) addChoice(songList, track.song, () => loadPlayer(track.song, src, true));
   }
+  songList.firstElementChild?.click();
 }, byId('soon'));
 
 const grain = byId('grain');
