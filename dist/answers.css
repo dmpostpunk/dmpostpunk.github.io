@@ -1,7 +1,11 @@
 #ask-song[hidden],#answer-dialog [hidden]{display:none}
 #ask-song{min-width:44px;padding:4px 10px}
-#ask-song span{display:inline-block;font-size:24px;animation:write-note 2.8s ease-in-out infinite}
-@keyframes write-note{0%,55%,100%{transform:rotate(-8deg)}20%,40%{transform:translate(2px,-1px) rotate(5deg)}}
+#ask-song span{display:inline-block;font-size:24px;font-weight:700;line-height:1;transform-origin:50% 80%;animation:question-nudge 3s ease-in-out infinite}
+@keyframes question-nudge{
+  0%,30%,100%{transform:none}
+  10%{transform:translateY(-3px) rotate(-10deg)}
+  19%{transform:translateY(-1px) rotate(7deg)}
+}
 #answer-dialog{width:min(440px,94vw);max-height:90svh;background:#f7efd9;color:#38271e}
 .answer-sheet{padding:clamp(18px,5vw,32px);overflow-wrap:anywhere}
 #answer-title{padding-right:36px;font-size:clamp(25px,6vw,34px)}

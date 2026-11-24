@@ -36,16 +36,16 @@
     const tracks = section?.tracks || (section === cfg.allSongs ? cfg.songs : []);
     const track = tracks?.find(t => t.song === entry.song);
     const src = embedUrl(track?.iframe || entry.iframe);
-    if (!presave && section && src) {
+    if (!presave && section && (src || section.embed)) {
       const button = document.createElement('button');
-      button.textContent = 'Открыть в плеере';
+      button.textContent = src ? 'Открыть в плеере' : 'Открыть альбом «' + section.title + '»';
       button.onclick = () => {
         dialog.close();
         const tab = [...tabs.querySelectorAll('button')].find(b => b.firstChild.textContent === section.title);
         tab?.click();
         const trackButton = trackButtons.get(src);
         if (trackButton) trackButton.click();
-        else loadPlayer(entry.song, src, true);
+        else if (src) loadPlayer(entry.song, src, true);
         player.scrollIntoView({ block: 'center' });
       };
       links.append(button);
