@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#281a11"><title>Дворец молодежи — музыка</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="answers.css"><script defer src="config.js"></script><script defer src="backgrounds.js"></script><script defer src="app.js"></script><script defer src="answers-data.js"></script><script defer src="answers.js"></script><link rel="icon" href="./favicon.ico" type="image/x-icon"></head>
-<body><div id="scene"></div><div id="grain"></div><header><h1><img src="logo.png" alt="Дворец молодежи"></h1><nav aria-label="Меню"><button id="ask-song" hidden data-open="answer-dialog" aria-label="Надпись на стене ДМ" title="Надпись на стене ДМ"><span aria-hidden="true">?</span></button><button data-open="about">О проекте</button></nav></header>
+<body><div id="scene"></div><div id="grain"></div><header><h1><img src="logo.png" alt="Дворец молодежи"></h1><nav aria-label="Меню"><button id="ask-song" hidden data-open="answer-dialog" aria-label="Спроси у ДМ" title="Спроси у ДМ"><span aria-hidden="true">?</span></button><button data-open="about">О проекте</button></nav></header>
 <main><section aria-label="Альбомы"><div id="tabs"><a id="soon" target="_blank" rel="noopener" aria-label="Скоро (откроется в новой вкладке)">Скоро <span aria-hidden="true">↗</span></a></div><div id="player"><div class="tape"><i></i><i></i><i></i><i></i><div class="label"><div class="tapeTitle">Дворец молодежи</div><div class="mechanism"><b></b><span></span><b></b></div></div><div class="foot"><a id="listen" target="_blank" rel="noopener">Слушать в Яндекс Музыке <span aria-hidden="true">↗</span></a></div></div></div></section><small id="credit" hidden></small></main>
 <dialog id="about" aria-labelledby="aboutTitle"><button class="close" aria-label="Закрыть">×</button><img src="dm-photo.png" alt="Черно-белый портрет на песчаных дюнах"><article><h2 id="aboutTitle">О проекте</h2><p id="bio"></p><div id="groups"></div></article></dialog>
 <dialog id="card-view" aria-label="Увеличенная карточка"><button class="close" aria-label="Закрыть">×</button><img id="full-card" alt=""></dialog>
 <dialog id="answer-dialog" aria-labelledby="answer-title">
   <button class="close" aria-label="Закрыть">×</button>
   <div class="answer-sheet">
-    <h2 id="answer-title">Надпись на стене ДМ</h2>
+    <h2 id="answer-title">Спроси у ДМ</h2>
     <form id="answer-form">
       <label for="song-question">Какой вопрос у тебя на душе?</label>
       <textarea id="song-question" placeholder="Например, что мне пора отпустить?" rows="2" maxlength="180" required></textarea>
@@ -21,7 +21,7 @@
       <p id="answered-question"></p>
       <blockquote id="answer-lines"></blockquote>
       <p id="answer-song"></p>
-      <p class="answer-signature">Найди свой ответ на dmpostpunk.github.io</p>
+      <p class="answer-signature">Найди свой ответ на <a href="https://dmpostpunk.github.io/">dmpostpunk.github.io</a></p>
     </section>
     <button id="download-answer" type="button" hidden>Скачать картинку</button>
     <div id="answer-links"></div>

@@ -60,9 +60,9 @@
     const ctx = canvas.getContext('2d');
     const left = 80;
     const width = canvas.width - left * 2;
-    ctx.fillStyle = '#f7efd9';
+    ctx.fillStyle = '#19191e';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#603526';
+    ctx.fillStyle = '#ffbf87';
     ctx.fillRect(0, 0, canvas.width, 22);
     ctx.textBaseline = 'top';
 
@@ -104,17 +104,27 @@
       }
       return y;
     }
-    ctx.fillStyle = '#603526';
-    block('ДВОРЕЦ МОЛОДЕЖИ', 80, 34, 'bold', 'sans-serif', 60);
+    ctx.fillStyle = '#ffbf87';
+    ctx.font = 'bold 44px sans-serif';
+    ctx.fillText('Спроси у ДМ', left, 80);
     ctx.fillRect(left, 161, width, 2);
+    ctx.fillStyle = '#c8bcbd';
     const end = block(question.replace(/\s+/g, ' ').trim(), 212, 43, 'normal', 'sans-serif', 300);
-    ctx.fillStyle = '#38271e';
+    ctx.fillStyle = '#f6efe3';
     const start = Math.max(440, end + 70);
     const bottom = block(quote, start, 76, 'italic', 'Georgia, serif', 1000 - start);
-    ctx.fillStyle = '#603526';
+    ctx.fillStyle = '#ffbf87';
     block(song, bottom + 38, 32, 'bold', 'sans-serif', 120);
     ctx.fillRect(left, 1180, width, 2);
-    block(signature, 1225, 32, 'normal', 'sans-serif', 90);
+    ctx.font = '32px sans-serif';
+    const domain = card.querySelector('.answer-signature a').textContent;
+    const prefix = signature.slice(0, -domain.length);
+    ctx.fillStyle = '#c8bcbd';
+    ctx.fillText(prefix, left, 1225);
+    const linkX = left + ctx.measureText(prefix).width;
+    ctx.fillStyle = '#aadbdb';
+    ctx.fillText(domain, linkX, 1225);
+    ctx.fillRect(linkX, 1264, ctx.measureText(domain).width, 2);
     return canvas;
   }
 
