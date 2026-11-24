@@ -37,8 +37,7 @@ main{margin-top:calc(clamp(10px,2vh,28px) / 3)}
 #groups{margin-top:12px}
 
 
-#tabs button{position:relative}
-.sound-indicator{position:absolute;right:3px;top:50%;transform:translateY(-50%);display:flex;align-items:flex-end;gap:1px;height:12px;pointer-events:none}
+.sound-indicator{margin-inline-start:8px;flex:none;display:flex;align-items:flex-end;gap:1px;height:12px;pointer-events:none}
 .sound-indicator i{width:2px;height:100%;background:currentColor;transform-origin:bottom;animation:sound-bar .68s ease-in-out infinite alternate}
 .sound-indicator i:nth-child(2){animation-delay:-.48s;height:78%}
 .sound-indicator i:nth-child(3){animation-delay:-.22s;height:92%}
