@@ -69,6 +69,26 @@
   let timer;
   let previous;
   const pick = items => items[Math.floor(Math.random() * items.length)];
+  const historyKey = 'dm.shownQuotes.v1';
+  let shown = [];
+  function nextAnswer() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(historyKey));
+      if (Array.isArray(saved)) shown = saved;
+    } catch { /* Keep using this page's history when storage is unavailable. */ }
+    const seen = new Set(shown);
+    let pool = answers.filter(answer => !seen.has(answer.lines));
+    if (!pool.length) {
+      const last = shown[shown.length - 1];
+      pool = answers.filter(answer => answer.lines !== last);
+      shown = [];
+    }
+    const answer = pick(pool.length ? pool : answers);
+    shown.push(answer.lines);
+    try { localStorage.setItem(historyKey, JSON.stringify(shown)); }
+    catch { /* The in-memory history still covers this visit. */ }
+    return answer;
+  }
   byId('ask-song').hidden = false;
 
   function reset() {
@@ -207,23 +227,23 @@
     if (form.hidden) return;
     form.hidden = true;
     loading.hidden = false;
-    const answer = pick(answers.length > 1 ? answers.filter(a => a !== previous) : answers);
-    const section = sectionFor(answer.entry);
-    if (section?.cassette) {
-      const image = new Image();
-      cassette = image;
-      image.alt = 'Кассета «' + section.title + '»';
-      image.hidden = true;
-      image.className = 'answer-cassette';
-      image.onload = image.onerror = () => {
-        if (cassette !== image) return;
-        image.hidden = !image.naturalWidth || card.hidden;
-        if (!image.hidden) prepareDownload();
-      };
-      image.src = window.CARD_CASSETTES[section.cassette];
-      heading.append(image);
-    }
     timer = setTimeout(() => {
+      const answer = nextAnswer();
+      const section = sectionFor(answer.entry);
+      if (section?.cassette) {
+        const image = new Image();
+        cassette = image;
+        image.alt = 'Кассета «' + section.title + '»';
+        image.hidden = true;
+        image.className = 'answer-cassette';
+        image.onload = image.onerror = () => {
+          if (cassette !== image) return;
+          image.hidden = !image.naturalWidth || card.hidden;
+          if (!image.hidden) prepareDownload();
+        };
+        image.src = window.CARD_CASSETTES[section.cassette];
+        heading.append(image);
+      }
       previous = answer;
       byId('answered-question').textContent = question;
       byId('answer-lines').textContent = answer.lines;
