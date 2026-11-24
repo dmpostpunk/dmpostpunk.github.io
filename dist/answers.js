@@ -24,13 +24,19 @@
   const again = byId('another-question');
   const heading = byId('answer-heading');
   let cassette;
+  const logo = new Image();
+  logo.onload = () => { if (!card.hidden && !cassette?.naturalWidth) prepareDownload(); };
+  logo.src = window.CARD_LOGO;
   const download = byId('download-answer');
   function prepareDownload() {
+    const artwork = cassette?.naturalWidth ? cassette : logo;
+    if (!artwork.naturalWidth) return;
     const canvas = drawSongCard(byId('answered-question').textContent,
       byId('answer-lines').textContent, byId('answer-song').textContent,
-      card.querySelector('.answer-signature').textContent);
+      card.querySelector('.answer-signature').textContent, artwork);
     download.download = 'dmpostpunk-' + previous.entry.song + '.png';
     download.href = canvas.toDataURL('image/png');
+    download.hidden = false;
   }
 
   let timer;
@@ -54,7 +60,7 @@
     input.focus();
   };
 
-  function drawSongCard(question, quote, song, signature) {
+  function drawSongCard(question, quote, song, signature, artwork) {
     const canvas = document.createElement('canvas');
     canvas.width = 1080;
     canvas.height = 1350;
@@ -108,12 +114,10 @@
     ctx.fillStyle = '#ffbf87';
     ctx.font = 'bold 44px sans-serif';
     ctx.fillText('Спроси у ДМ', left, 80);
-    if (cassette?.naturalWidth) {
-      const scale = Math.min(176 / cassette.naturalWidth, 108 / cassette.naturalHeight);
-      const w = cassette.naturalWidth * scale;
-      const h = cassette.naturalHeight * scale;
-      ctx.drawImage(cassette, canvas.width - left - w, 96 - h / 2, w, h);
-    }
+    const scale = Math.min(176 / artwork.naturalWidth, 108 / artwork.naturalHeight);
+    const w = artwork.naturalWidth * scale;
+    const h = artwork.naturalHeight * scale;
+    ctx.drawImage(artwork, canvas.width - left - w, 96 - h / 2, w, h);
     ctx.fillRect(left, 161, width, 2);
     ctx.fillStyle = '#c8bcbd';
     const end = block(question.replace(/\s+/g, ' ').trim(), 212, 43, 'normal', 'sans-serif', 300);
@@ -172,8 +176,7 @@
   }
   form.onsubmit = event => {
     event.preventDefault();
-    const question = input.value.trim();
-    if (!question) { input.value = ''; input.reportValidity(); return; }
+    const question = input.value.trim() || 'Без вопроса';
     if (form.hidden) return;
     form.hidden = true;
     loading.hidden = false;
@@ -199,13 +202,13 @@
       byId('answer-lines').textContent = answer.lines;
       byId('answer-song').textContent = 'Дворец молодежи — ' + answer.entry.song;
       loading.hidden = true;
-      card.hidden = download.hidden = false;
+      card.hidden = false;
       if (cassette?.naturalWidth) cassette.hidden = false;
       prepareDownload();
       addLinks(answer.entry, section);
       again.hidden = false;
       download.focus({ preventScroll: true });
       dialog.querySelector('.answer-sheet').scrollTop = 0;
-    }, 3000);
+    }, 4000);
   };
 })();
