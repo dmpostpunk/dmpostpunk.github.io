@@ -22,6 +22,8 @@
   const card = byId('answer-card');
   const links = byId('answer-links');
   const again = byId('another-question');
+  const heading = byId('answer-heading');
+  let cassette;
   const download = byId('download-answer');
   download.onclick = () => {
     const canvas = drawSongCard(byId('answered-question').textContent,
@@ -42,6 +44,9 @@
 
   function reset() {
     clearTimeout(timer);
+    cassette?.remove();
+    cassette = undefined;
+    download.disabled = false;
     form.hidden = false;
     card.hidden = loading.hidden = again.hidden = download.hidden = true;
     links.replaceChildren();
@@ -107,6 +112,12 @@
     ctx.fillStyle = '#ffbf87';
     ctx.font = 'bold 44px sans-serif';
     ctx.fillText('Спроси у ДМ', left, 80);
+    if (cassette?.naturalWidth) {
+      const scale = Math.min(176 / cassette.naturalWidth, 108 / cassette.naturalHeight);
+      const w = cassette.naturalWidth * scale;
+      const h = cassette.naturalHeight * scale;
+      ctx.drawImage(cassette, canvas.width - left - w, 96 - h / 2, w, h);
+    }
     ctx.fillRect(left, 161, width, 2);
     ctx.fillStyle = '#c8bcbd';
     const end = block(question.replace(/\s+/g, ' ').trim(), 212, 43, 'normal', 'sans-serif', 300);
@@ -128,11 +139,14 @@
     return canvas;
   }
 
-  function addLinks(entry) {
-    const presave = presaves[entry.song];
+  function sectionFor(entry) {
     const sections = [...cfg.albums, cfg.allSongs];
-    const section = sections.find(album => album && (entry.album === album.title ||
+    return sections.find(album => album && (entry.album === album.title ||
       (album.tracks || (album === cfg.allSongs ? cfg.songs : []))?.some(t => t.song === entry.song)));
+  }
+
+  function addLinks(entry, section) {
+    const presave = presaves[entry.song];
     const tracks = section?.tracks || (section === cfg.allSongs ? cfg.songs : []);
     const track = tracks?.find(t => t.song === entry.song);
     const src = embedUrl(track?.iframe || entry.iframe);
@@ -167,15 +181,32 @@
     if (form.hidden) return;
     form.hidden = true;
     loading.hidden = false;
+    const answer = pick(answers.length > 1 ? answers.filter(a => a !== previous) : answers);
+    const section = sectionFor(answer.entry);
+    if (section?.cassette) {
+      const image = new Image();
+      cassette = image;
+      image.alt = 'Кассета «' + section.title + '»';
+      image.hidden = true;
+      image.className = 'answer-cassette';
+      download.disabled = true;
+      image.onload = image.onerror = () => {
+        if (cassette !== image) return;
+        download.disabled = false;
+        image.hidden = !image.naturalWidth || card.hidden;
+      };
+      image.src = section.cassette;
+      heading.append(image);
+    }
     timer = setTimeout(() => {
-      const answer = pick(answers.length > 1 ? answers.filter(a => a !== previous) : answers);
       previous = answer;
       byId('answered-question').textContent = question;
       byId('answer-lines').textContent = answer.lines;
       byId('answer-song').textContent = 'Дворец молодежи — ' + answer.entry.song;
       loading.hidden = true;
       card.hidden = download.hidden = false;
-      addLinks(answer.entry);
+      if (cassette?.naturalWidth) cassette.hidden = false;
+      addLinks(answer.entry, section);
       again.hidden = false;
       download.focus({ preventScroll: true });
       dialog.querySelector('.answer-sheet').scrollTop = 0;

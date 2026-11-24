@@ -55,3 +55,7 @@
 
 .answer-signature a,#answer-links a{color:#aadbdb;text-decoration:underline;text-underline-offset:.18em}
 #answer-dialog .close{background:#302d33;color:#f6efe3}
+
+#answer-heading{display:flex;align-items:center;gap:10px;padding-right:38px;margin-bottom:16px}
+#answer-heading h2{padding:0;margin:0;min-width:0}
+#answer-heading .answer-cassette{width:clamp(54px,16vw,80px);height:auto;object-fit:contain;flex:none}
