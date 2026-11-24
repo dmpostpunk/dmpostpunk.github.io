@@ -75,28 +75,39 @@ window.addEventListener('blur', () => setTimeout(rememberFocus, 0));
 // A cross-origin player may take focus without firing focus on the iframe element.
 setInterval(rememberFocus, 250);
 
-const cassette = document.createElement('img');
-cassette.className = 'cassette-loader';
-cassette.alt = '';
 let loaderUrl;
-let pendingLoader = false;
-cassette.onload = () => {
-  if (pendingLoader) cassette.classList.add('shown');
-};
+let stopLoader = () => {};
 
-function hideCassette() {
-  pendingLoader = false;
-  cassette.classList.remove('shown');
-}
+function showCassette(frame, url) {
+  const image = new Image();
+  image.className = 'cassette-loader';
+  image.alt = 'Загрузка плеера';
+  image.src = url;
+  player.append(image);
 
-let backdrop;
-let cancelPendingReveal = () => {};
+  const duration = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 180;
+  let cancelled = false;
+  const loaded = new Promise(resolve => frame.addEventListener('load', resolve, { once: true }));
+  const shown = image.decode().then(() => {
+    if (cancelled) return;
+    image.style.opacity = '1';
+    if (duration) return image.animate([{ opacity: 0 }, { opacity: 1 }], duration).finished;
+  }).catch(() => {});
 
-function clearBackdrop() {
-  if (!backdrop) return;
-  if (backdrop === lastFocusedFrame) backdrop.style.display = 'none';
-  else backdrop.remove();
-  backdrop = undefined;
+  const timeout = setTimeout(finish, 8000);
+  function finish() {
+    cancelled = true;
+    clearTimeout(timeout);
+    image.remove();
+  }
+  stopLoader = finish;
+  Promise.all([loaded, shown]).then(async () => {
+    if (cancelled) return;
+    if (duration && image.naturalWidth) {
+      await image.animate([{ opacity: 1 }, { opacity: 0 }], { duration, fill: 'forwards' }).finished;
+    }
+    finish();
+  });
 }
 
 function loadPlayer(title, src, isSong = false) {
@@ -107,36 +118,19 @@ function loadPlayer(title, src, isSong = false) {
     return;
   }
   rememberFocus();
-  // Keep the last painted player as a backdrop while the new one loads.
-  if (visibleFrame?.classList.contains('player-ready')) {
-    clearBackdrop();
-    backdrop = visibleFrame;
-    backdrop.inert = true;
-  } else {
-    visibleFrame?.remove();
+  stopLoader();
+  if (!visibleFrame) player.replaceChildren();
+  else if (visibleFrame === lastFocusedFrame) {
+    visibleFrame.style.display = 'none';
   }
-  cancelPendingReveal();
-  hideCassette();
-  if (!visibleFrame) {
-    player.replaceChildren();
-    player.classList.toggle('song-slot', isSong);
-  }
+  else visibleFrame.remove();
 
   if (lastFocusedFrame?.src === src) {
     visibleFrame = lastFocusedFrame;
-    player.classList.toggle('song-slot', isSong);
-    clearBackdrop();
     visibleFrame.style.display = '';
-    visibleFrame.inert = false;
     frameTabs.set(visibleFrame, sectionTab);
     updateIndicators(sectionTab);
     return;
-  }
-  if (loaderUrl) {
-    pendingLoader = true;
-    if (cassette.getAttribute('src') !== loaderUrl) cassette.setAttribute('src', loaderUrl);
-    if (!cassette.isConnected) player.append(cassette);
-    if (cassette.complete && cassette.naturalWidth) cassette.classList.add('shown');
   }
   const frame = document.createElement('iframe');
   frame.src = src;
@@ -146,35 +140,7 @@ function loadPlayer(title, src, isSong = false) {
   frameTabs.set(frame, sectionTab);
   visibleFrame = frame;
   frame.addEventListener('focus', rememberFocus);
-  frame.inert = true;
-  let settleTimer;
-  let paint;
-  let fadeTimer;
-  function reveal() {
-    if (visibleFrame !== frame) return;
-    player.classList.toggle('song-slot', isSong);
-    hideCassette();
-    frame.classList.add('player-ready');
-    frame.inert = false;
-    cancelPendingReveal();
-    fadeTimer = setTimeout(clearBackdrop, 240);
-  }
-  function afterLoad() {
-    // The embed can still lay out its controls after its load event.
-    settleTimer = setTimeout(() => {
-      paint = requestAnimationFrame(() => { paint = requestAnimationFrame(reveal); });
-    }, 250);
-  }
-  // A stalled embed should still expose the provider's loading or error UI.
-  const timeout = setTimeout(reveal, 8000);
-  frame.addEventListener('load', afterLoad, { once: true });
-  cancelPendingReveal = () => {
-    clearTimeout(timeout);
-    clearTimeout(fadeTimer);
-    clearTimeout(settleTimer);
-    cancelAnimationFrame(paint);
-    frame.removeEventListener('load', afterLoad);
-  };
+  if (loaderUrl) showCassette(frame, loaderUrl);
   player.append(frame);
   updateIndicators(sectionTab);
 }
