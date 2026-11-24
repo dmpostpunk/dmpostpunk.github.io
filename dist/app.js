@@ -37,13 +37,42 @@ function embedUrl(value) {
   return null;
 }
 
+const player = byId('player');
+let visibleFrame;
+let lastFocusedFrame;
+
+function rememberFocus() {
+  if (!visibleFrame || document.activeElement !== visibleFrame) return;
+  if (lastFocusedFrame !== visibleFrame) {
+    lastFocusedFrame?.remove();
+    lastFocusedFrame = visibleFrame;
+  }
+}
+
+window.addEventListener('blur', () => setTimeout(rememberFocus, 0));
+// A cross-origin player may take focus without firing focus on the iframe element.
+setInterval(rememberFocus, 250);
+
 function loadPlayer(title, src, isSong = false) {
+  if (visibleFrame?.src === src) return;
+  rememberFocus();
+  if (!visibleFrame) player.replaceChildren();
+  else if (visibleFrame === lastFocusedFrame) visibleFrame.style.display = 'none';
+  else visibleFrame.remove();
+
+  if (lastFocusedFrame?.src === src) {
+    visibleFrame = lastFocusedFrame;
+    visibleFrame.style.display = '';
+    return;
+  }
   const frame = document.createElement('iframe');
   frame.src = src;
   frame.title = title + ' — Яндекс Музыка';
   frame.allow = 'autoplay; encrypted-media; clipboard-write';
   if (isSong) frame.className = 'song-player';
-  byId('player').replaceChildren(frame);
+  visibleFrame = frame;
+  frame.addEventListener('focus', rememberFocus);
+  player.append(frame);
 }
 
 function addChoice(group, label, select, before = null) {
@@ -58,6 +87,7 @@ function addChoice(group, label, select, before = null) {
     }
     select();
   };
+  return button;
 }
 
 const tabs = byId('tabs');
@@ -112,43 +142,40 @@ function resetSection(album = {}) {
   credit.hidden = !album.credit;
   setBackground(album.background);
 }
-function showTracks(album) {
+const selectedTracks = new Map();
+function showTracks(album, tracks) {
   songList.hidden = false;
-  let currentTrack;
-  for (const track of album.tracks) {
+  let selectedButton;
+  for (const track of tracks) {
     const src = embedUrl(track.iframe);
     if (!src) continue;
-    addChoice(songList, track.song, () => {
-      if (currentTrack !== track) loadPlayer(track.song, src, true);
-      currentTrack = track;
-      gallery.className = 'track-cards';
-      gallery.replaceChildren(...track.cards.map((url,i) => trackCard(url, track.song + (i ? ' — история трека' : ' — коллаж'))));
+    const button = addChoice(songList, track.song, () => {
+      selectedTracks.set(tracks, track);
+      loadPlayer(track.song, src, true);
+      if (track.cards) {
+        gallery.className = 'track-cards';
+        gallery.replaceChildren(...track.cards.map((url,i) => trackCard(url, track.song + (i ? ' — история трека' : ' — коллаж'))));
+      }
     });
+    if (!selectedButton || selectedTracks.get(tracks) === track) selectedButton = button;
   }
-  const first = songList.firstElementChild;
-  if (album.questions?.length) addChoice(songList, 'Об альбоме', () => {
+  if (album?.questions?.length) addChoice(songList, 'Об альбоме', () => {
     gallery.className = 'questions';
     gallery.replaceChildren(...album.questions.map(questionCard));
   });
-  first?.click();
+  selectedButton?.click();
 }
 for (const album of cfg.albums) {
   const src = embedUrl(album.embed);
   if (src || album.tracks?.length) addChoice(tabs, album.title, () => {
     resetSection(album);
-    if (album.tracks?.length) showTracks(album);
+    if (album.tracks?.length) showTracks(album, album.tracks);
     else loadPlayer(album.title, src);
   }, byId('soon'));
 }
 if (cfg.songs?.length) addChoice(tabs, cfg.allSongs?.title || 'Все песни', () => {
   resetSection(cfg.allSongs);
-  byId('player').replaceChildren();
-  songList.hidden = false;
-  for (const track of cfg.songs) {
-    const src = embedUrl(track.iframe);
-    if (src) addChoice(songList, track.song, () => loadPlayer(track.song, src, true));
-  }
-  songList.firstElementChild?.click();
+  showTracks(cfg.allSongs, cfg.songs);
 }, byId('soon'));
 
 const grain = byId('grain');
