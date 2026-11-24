@@ -49,10 +49,23 @@ soundIcon.setAttribute('aria-label', 'Плеер в фоне');
 soundIcon.title = 'Плеер в фоне';
 for (let i = 0; i < 3; i++) soundIcon.append(document.createElement('i'));
 
+const trackSoundIcon = soundIcon.cloneNode(true);
+const trackButtons = new Map();
+
+function updateIndicators(sectionTab) {
+  soundIcon.remove();
+  trackSoundIcon.remove();
+  if (!lastFocusedFrame || lastFocusedFrame === visibleFrame) return;
+  const owner = frameTabs.get(lastFocusedFrame);
+  owner?.append(soundIcon);
+  if (owner === sectionTab) trackButtons.get(lastFocusedFrame.src)?.append(trackSoundIcon);
+}
+
 function rememberFocus() {
   if (!visibleFrame || document.activeElement !== visibleFrame) return;
   if (lastFocusedFrame !== visibleFrame) {
     soundIcon.remove();
+    trackSoundIcon.remove();
     lastFocusedFrame?.remove();
     lastFocusedFrame = visibleFrame;
   }
@@ -66,13 +79,13 @@ function loadPlayer(title, src, isSong = false) {
   const sectionTab = tabs.querySelector('button[aria-pressed="true"]');
   if (visibleFrame?.src === src) {
     frameTabs.set(visibleFrame, sectionTab);
+    updateIndicators(sectionTab);
     return;
   }
   rememberFocus();
   if (!visibleFrame) player.replaceChildren();
   else if (visibleFrame === lastFocusedFrame) {
     visibleFrame.style.display = 'none';
-    frameTabs.get(visibleFrame)?.append(soundIcon);
   }
   else visibleFrame.remove();
 
@@ -80,7 +93,7 @@ function loadPlayer(title, src, isSong = false) {
     visibleFrame = lastFocusedFrame;
     visibleFrame.style.display = '';
     frameTabs.set(visibleFrame, sectionTab);
-    soundIcon.remove();
+    updateIndicators(sectionTab);
     return;
   }
   const frame = document.createElement('iframe');
@@ -92,6 +105,7 @@ function loadPlayer(title, src, isSong = false) {
   visibleFrame = frame;
   frame.addEventListener('focus', rememberFocus);
   player.append(frame);
+  updateIndicators(sectionTab);
 }
 
 function addChoice(group, label, select, before = null) {
@@ -153,6 +167,7 @@ function questionCard(q) {
   return button;
 }
 function resetSection(album = {}) {
+  trackButtons.clear();
   songList.replaceChildren();
   songList.hidden = true;
   gallery.replaceChildren();
@@ -176,6 +191,7 @@ function showTracks(album, tracks) {
         gallery.replaceChildren(...track.cards.map((url,i) => trackCard(url, track.song + (i ? ' — история трека' : ' — коллаж'))));
       }
     });
+    trackButtons.set(src, button);
     if (!selectedButton || selectedTracks.get(tracks) === track) selectedButton = button;
   }
   if (album?.questions?.length) addChoice(songList, 'Об альбоме', () => {
