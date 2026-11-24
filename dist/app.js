@@ -37,17 +37,13 @@ function embedUrl(value) {
   return null;
 }
 
-let playerFrame;
 function loadPlayer(title, src, isSong = false) {
-  if (playerFrame?.src === src) return;
-  if (!playerFrame) {
-    playerFrame = document.createElement('iframe');
-    playerFrame.allow = 'autoplay; encrypted-media; clipboard-write';
-    byId('player').replaceChildren(playerFrame);
-  }
-  playerFrame.title = title + ' — Яндекс Музыка';
-  playerFrame.classList.toggle('song-player', isSong);
-  playerFrame.src = src;
+  const frame = document.createElement('iframe');
+  frame.src = src;
+  frame.title = title + ' — Яндекс Музыка';
+  frame.allow = 'autoplay; encrypted-media; clipboard-write';
+  if (isSong) frame.className = 'song-player';
+  byId('player').replaceChildren(frame);
 }
 
 function addChoice(group, label, select, before = null) {
@@ -57,7 +53,7 @@ function addChoice(group, label, select, before = null) {
   group.insertBefore(button, before);
   button.onclick = () => {
     if (button.getAttribute('aria-pressed') === 'true') return;
-    for (const sibling of group.querySelectorAll('button[aria-pressed]')) {
+    for (const sibling of group.querySelectorAll('button')) {
       sibling.setAttribute('aria-pressed', String(sibling === button));
     }
     select();
@@ -74,19 +70,6 @@ byId('player').before(songList);
 const gallery = document.createElement('div');
 gallery.id = 'album-cards';
 byId('player').after(gallery);
-const listenChoice = document.createElement('button');
-function offerPlayback(title, src, isSong = false) {
-  listenChoice.remove();
-  if (!playerFrame) loadPlayer(title, src, isSong);
-  if (playerFrame.src === src) return;
-  listenChoice.textContent = 'Слушать «' + title + '»';
-  listenChoice.onclick = () => {
-    loadPlayer(title, src, isSong);
-    listenChoice.remove();
-  };
-  songList.hidden = false;
-  songList.append(listenChoice);
-}
 function picture(src, alt) {
   const img = new Image();
   img.src = src;
@@ -131,18 +114,19 @@ function resetSection(album = {}) {
 }
 function showTracks(album) {
   songList.hidden = false;
+  let currentTrack;
   for (const track of album.tracks) {
     const src = embedUrl(track.iframe);
     if (!src) continue;
     addChoice(songList, track.song, () => {
-      offerPlayback(track.song, src, true);
+      if (currentTrack !== track) loadPlayer(track.song, src, true);
+      currentTrack = track;
       gallery.className = 'track-cards';
       gallery.replaceChildren(...track.cards.map((url,i) => trackCard(url, track.song + (i ? ' — история трека' : ' — коллаж'))));
     });
   }
   const first = songList.firstElementChild;
   if (album.questions?.length) addChoice(songList, 'Об альбоме', () => {
-    listenChoice.remove();
     gallery.className = 'questions';
     gallery.replaceChildren(...album.questions.map(questionCard));
   });
@@ -153,17 +137,18 @@ for (const album of cfg.albums) {
   if (src || album.tracks?.length) addChoice(tabs, album.title, () => {
     resetSection(album);
     if (album.tracks?.length) showTracks(album);
-    else offerPlayback(album.title, src);
+    else loadPlayer(album.title, src);
   }, byId('soon'));
 }
 if (cfg.songs?.length) addChoice(tabs, cfg.allSongs?.title || 'Все песни', () => {
   resetSection(cfg.allSongs);
+  byId('player').replaceChildren();
   songList.hidden = false;
   for (const track of cfg.songs) {
     const src = embedUrl(track.iframe);
     if (src) addChoice(songList, track.song, () => loadPlayer(track.song, src, true));
   }
-  if (!playerFrame) songList.firstElementChild?.click();
+  songList.firstElementChild?.click();
 }, byId('soon'));
 
 const grain = byId('grain');
