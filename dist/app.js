@@ -85,7 +85,7 @@ function showCassette(frame, url) {
   image.src = url;
   player.append(image);
 
-  const duration = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 180;
+  const duration = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1000;
   let cancelled = false;
   const loaded = new Promise(resolve => frame.addEventListener('load', resolve, { once: true }));
   const shown = image.decode().then(() => {
