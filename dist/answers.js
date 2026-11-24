@@ -28,12 +28,39 @@
   logo.onload = () => { if (!card.hidden && !cassette?.naturalWidth) prepareDownload(); };
   logo.src = window.CARD_LOGO;
   const download = byId('download-answer');
+  const mobile = navigator.userAgentData?.mobile || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  let imageVersion = 0;
+  if (mobile) {
+    download.removeAttribute('download');
+    download.textContent = 'Открыть картинку';
+    download.target = '_blank';
+    download.rel = 'noopener';
+  }
+
+  function clearImageLink() {
+    imageVersion++;
+    if (download.href.startsWith('blob:')) URL.revokeObjectURL(download.href);
+    download.removeAttribute('href');
+  }
+
   function prepareDownload() {
     const artwork = cassette?.naturalWidth ? cassette : logo;
     if (!artwork.naturalWidth) return;
     const canvas = drawSongCard(byId('answered-question').textContent,
       byId('answer-lines').textContent, byId('answer-song').textContent,
       card.querySelector('.answer-signature').textContent, artwork);
+    if (mobile) {
+      clearImageLink();
+      const version = imageVersion;
+      download.hidden = true;
+      canvas.toBlob(blob => {
+        if (!blob || version !== imageVersion) return;
+        download.href = URL.createObjectURL(blob);
+        download.hidden = false;
+      }, 'image/png');
+      return;
+    }
     download.download = 'dmpostpunk-' + previous.entry.song + '.png';
     download.href = canvas.toDataURL('image/png');
     download.hidden = false;
@@ -48,7 +75,7 @@
     clearTimeout(timer);
     cassette?.remove();
     cassette = undefined;
-    download.removeAttribute('href');
+    clearImageLink();
     form.hidden = false;
     card.hidden = loading.hidden = again.hidden = download.hidden = true;
     links.replaceChildren();
