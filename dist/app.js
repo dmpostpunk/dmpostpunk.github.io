@@ -75,6 +75,16 @@ window.addEventListener('blur', () => setTimeout(rememberFocus, 0));
 // A cross-origin player may take focus without firing focus on the iframe element.
 setInterval(rememberFocus, 250);
 
+let backdrop;
+let cancelPendingReveal = () => {};
+
+function clearBackdrop() {
+  if (!backdrop) return;
+  if (backdrop === lastFocusedFrame) backdrop.style.display = 'none';
+  else backdrop.remove();
+  backdrop = undefined;
+}
+
 function loadPlayer(title, src, isSong = false) {
   const sectionTab = tabs.querySelector('button[aria-pressed="true"]');
   if (visibleFrame?.src === src) {
@@ -83,15 +93,23 @@ function loadPlayer(title, src, isSong = false) {
     return;
   }
   rememberFocus();
-  if (!visibleFrame) player.replaceChildren();
-  else if (visibleFrame === lastFocusedFrame) {
-    visibleFrame.style.display = 'none';
+  // Keep the last painted player as a backdrop while the new one loads.
+  if (visibleFrame?.classList.contains('player-ready')) {
+    clearBackdrop();
+    backdrop = visibleFrame;
+    backdrop.inert = true;
+  } else {
+    visibleFrame?.remove();
   }
-  else visibleFrame.remove();
+  cancelPendingReveal();
+  if (!visibleFrame) player.replaceChildren();
+  player.classList.toggle('song-slot', isSong);
 
   if (lastFocusedFrame?.src === src) {
     visibleFrame = lastFocusedFrame;
+    clearBackdrop();
     visibleFrame.style.display = '';
+    visibleFrame.inert = false;
     frameTabs.set(visibleFrame, sectionTab);
     updateIndicators(sectionTab);
     return;
@@ -104,6 +122,28 @@ function loadPlayer(title, src, isSong = false) {
   frameTabs.set(frame, sectionTab);
   visibleFrame = frame;
   frame.addEventListener('focus', rememberFocus);
+  frame.inert = true;
+  let paint;
+  let fadeTimer;
+  function reveal() {
+    if (visibleFrame !== frame) return;
+    frame.classList.add('player-ready');
+    frame.inert = false;
+    cancelPendingReveal();
+    fadeTimer = setTimeout(clearBackdrop, 240);
+  }
+  function afterLoad() {
+    paint = requestAnimationFrame(() => { paint = requestAnimationFrame(reveal); });
+  }
+  // A stalled embed should still expose the provider's loading or error UI.
+  const timeout = setTimeout(reveal, 8000);
+  frame.addEventListener('load', afterLoad, { once: true });
+  cancelPendingReveal = () => {
+    clearTimeout(timeout);
+    clearTimeout(fadeTimer);
+    cancelAnimationFrame(paint);
+    frame.removeEventListener('load', afterLoad);
+  };
   player.append(frame);
   updateIndicators(sectionTab);
 }
