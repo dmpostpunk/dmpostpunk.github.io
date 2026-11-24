@@ -36,3 +36,11 @@ main{margin-top:calc(clamp(10px,2vh,28px) / 3)}
 #credit:not([hidden]){display:block;width:fit-content;margin:8px 0 0;padding:3px 7px;border-radius:3px;background:#281e17c9;color:#fff6df;font:12px/1.4 Georgia,serif;text-align:left}
 #groups{margin-top:12px}
 
+
+#tabs button{position:relative}
+.sound-indicator{position:absolute;right:3px;top:50%;transform:translateY(-50%);display:flex;align-items:flex-end;gap:1px;height:12px;pointer-events:none}
+.sound-indicator i{width:2px;height:100%;background:currentColor;transform-origin:bottom;animation:sound-bar .68s ease-in-out infinite alternate}
+.sound-indicator i:nth-child(2){animation-delay:-.48s;height:78%}
+.sound-indicator i:nth-child(3){animation-delay:-.22s;height:92%}
+@keyframes sound-bar{from{transform:scaleY(.32)}to{transform:scaleY(1)}}
+@media(prefers-reduced-motion:reduce){.sound-indicator i{animation:none}.sound-indicator i:first-child{height:45%}}
