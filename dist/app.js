@@ -41,9 +41,31 @@ const player = byId('player');
 let visibleFrame;
 let lastFocusedFrame;
 
+const frameTabs = new WeakMap();
+const soundIcon = document.createElement('span');
+soundIcon.className = 'sound-indicator';
+soundIcon.setAttribute('role', 'img');
+soundIcon.setAttribute('aria-label', 'Плеер в фоне');
+soundIcon.title = 'Плеер в фоне';
+for (let i = 0; i < 3; i++) soundIcon.append(document.createElement('i'));
+
+const trackSoundIcon = soundIcon.cloneNode(true);
+const trackButtons = new Map();
+
+function updateIndicators(sectionTab) {
+  soundIcon.remove();
+  trackSoundIcon.remove();
+  if (!lastFocusedFrame || lastFocusedFrame === visibleFrame) return;
+  const owner = frameTabs.get(lastFocusedFrame);
+  owner?.append(soundIcon);
+  if (owner === sectionTab) trackButtons.get(lastFocusedFrame.src)?.append(trackSoundIcon);
+}
+
 function rememberFocus() {
   if (!visibleFrame || document.activeElement !== visibleFrame) return;
   if (lastFocusedFrame !== visibleFrame) {
+    soundIcon.remove();
+    trackSoundIcon.remove();
     lastFocusedFrame?.remove();
     lastFocusedFrame = visibleFrame;
   }
@@ -54,15 +76,24 @@ window.addEventListener('blur', () => setTimeout(rememberFocus, 0));
 setInterval(rememberFocus, 250);
 
 function loadPlayer(title, src, isSong = false) {
-  if (visibleFrame?.src === src) return;
+  const sectionTab = tabs.querySelector('button[aria-pressed="true"]');
+  if (visibleFrame?.src === src) {
+    frameTabs.set(visibleFrame, sectionTab);
+    updateIndicators(sectionTab);
+    return;
+  }
   rememberFocus();
   if (!visibleFrame) player.replaceChildren();
-  else if (visibleFrame === lastFocusedFrame) visibleFrame.style.display = 'none';
+  else if (visibleFrame === lastFocusedFrame) {
+    visibleFrame.style.display = 'none';
+  }
   else visibleFrame.remove();
 
   if (lastFocusedFrame?.src === src) {
     visibleFrame = lastFocusedFrame;
     visibleFrame.style.display = '';
+    frameTabs.set(visibleFrame, sectionTab);
+    updateIndicators(sectionTab);
     return;
   }
   const frame = document.createElement('iframe');
@@ -70,9 +101,11 @@ function loadPlayer(title, src, isSong = false) {
   frame.title = title + ' — Яндекс Музыка';
   frame.allow = 'autoplay; encrypted-media; clipboard-write';
   if (isSong) frame.className = 'song-player';
+  frameTabs.set(frame, sectionTab);
   visibleFrame = frame;
   frame.addEventListener('focus', rememberFocus);
   player.append(frame);
+  updateIndicators(sectionTab);
 }
 
 function addChoice(group, label, select, before = null) {
@@ -134,6 +167,7 @@ function questionCard(q) {
   return button;
 }
 function resetSection(album = {}) {
+  trackButtons.clear();
   songList.replaceChildren();
   songList.hidden = true;
   gallery.replaceChildren();
@@ -157,6 +191,7 @@ function showTracks(album, tracks) {
         gallery.replaceChildren(...track.cards.map((url,i) => trackCard(url, track.song + (i ? ' — история трека' : ' — коллаж'))));
       }
     });
+    trackButtons.set(src, button);
     if (!selectedButton || selectedTracks.get(tracks) === track) selectedButton = button;
   }
   if (album?.questions?.length) addChoice(songList, 'Об альбоме', () => {
