@@ -44,23 +44,3 @@ main{margin-top:calc(clamp(10px,2vh,28px) / 3)}
 .sound-indicator i:nth-child(3){animation-delay:-.22s;height:92%}
 @keyframes sound-bar{from{transform:scaleY(.32)}to{transform:scaleY(1)}}
 @media(prefers-reduced-motion:reduce){.sound-indicator i{animation:none}.sound-indicator i:first-child{height:45%}}
-
-#player:has(> .cassette-loader) {
-  position: relative;
-  aspect-ratio: 1200 / 760;
-  overflow: hidden;
-  border-radius: 5px;
-}
-#player:has(> .cassette-loader) > iframe {
-  position: absolute;
-  inset: 0;
-  visibility: hidden;
-}
-.cassette-loader {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  opacity: 0;
-}

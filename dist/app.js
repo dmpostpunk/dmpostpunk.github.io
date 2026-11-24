@@ -75,44 +75,6 @@ window.addEventListener('blur', () => setTimeout(rememberFocus, 0));
 // A cross-origin player may take focus without firing focus on the iframe element.
 setInterval(rememberFocus, 250);
 
-let loaderUrl;
-let stopLoader = () => {};
-
-function showCassette(frame, url) {
-  const image = new Image();
-  image.className = 'cassette-loader';
-  image.alt = 'Загрузка плеера';
-  image.src = url;
-  player.append(image);
-
-  const duration = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1000;
-  let cancelled = false;
-  const loaded = new Promise(resolve => frame.addEventListener('load', resolve, { once: true }));
-  let holdTimer;
-  const shown = image.decode().then(async () => {
-    if (cancelled) return;
-    image.style.opacity = '1';
-    if (duration) await image.animate([{ opacity: 0 }, { opacity: 1 }], duration).finished;
-    if (!cancelled) await new Promise(resolve => { holdTimer = setTimeout(resolve, 1000); });
-  }).catch(() => {});
-
-  const timeout = setTimeout(finish, 8000);
-  function finish() {
-    cancelled = true;
-    clearTimeout(timeout);
-    clearTimeout(holdTimer);
-    image.remove();
-  }
-  stopLoader = finish;
-  Promise.all([loaded, shown]).then(async () => {
-    if (cancelled) return;
-    if (duration && image.naturalWidth) {
-      await image.animate([{ opacity: 1 }, { opacity: 0 }], { duration, fill: 'forwards' }).finished;
-    }
-    finish();
-  });
-}
-
 function loadPlayer(title, src, isSong = false) {
   const sectionTab = tabs.querySelector('button[aria-pressed="true"]');
   if (visibleFrame?.src === src) {
@@ -121,7 +83,6 @@ function loadPlayer(title, src, isSong = false) {
     return;
   }
   rememberFocus();
-  stopLoader();
   if (!visibleFrame) player.replaceChildren();
   else if (visibleFrame === lastFocusedFrame) {
     visibleFrame.style.display = 'none';
@@ -143,7 +104,6 @@ function loadPlayer(title, src, isSong = false) {
   frameTabs.set(frame, sectionTab);
   visibleFrame = frame;
   frame.addEventListener('focus', rememberFocus);
-  if (loaderUrl) showCassette(frame, loaderUrl);
   player.append(frame);
   updateIndicators(sectionTab);
 }
@@ -207,7 +167,6 @@ function questionCard(q) {
   return button;
 }
 function resetSection(album = {}) {
-  loaderUrl = album.loader;
   trackButtons.clear();
   songList.replaceChildren();
   songList.hidden = true;
