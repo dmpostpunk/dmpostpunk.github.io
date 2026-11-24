@@ -4,6 +4,18 @@
   const answers = window.SONG_ANSWERS.flatMap(entry => entry.quotes.map(lines => ({ entry, lines })));
   if (!answers.length) return;
   const dialog = byId('answer-dialog');
+  const viewport = window.visualViewport;
+  function fitDialog() {
+    if (!viewport || !dialog.open) return;
+    dialog.style.setProperty('--view-height', viewport.height + 'px');
+    dialog.style.setProperty('--view-width', viewport.width + 'px');
+    dialog.style.setProperty('--view-top', viewport.offsetTop + 'px');
+    dialog.style.setProperty('--view-left', viewport.offsetLeft + 'px');
+  }
+  dialog.addEventListener('toggle', fitDialog);
+  dialog.addEventListener('focusin', fitDialog);
+  viewport?.addEventListener('resize', fitDialog);
+  viewport?.addEventListener('scroll', fitDialog);
   const input = byId('song-question');
   const form = byId('answer-form');
   const loading = byId('answer-loading');
@@ -156,7 +168,7 @@
       addLinks(answer.entry);
       again.hidden = false;
       download.focus({ preventScroll: true });
-      dialog.scrollTop = 0;
+      dialog.querySelector('.answer-sheet').scrollTop = 0;
     }, 3000);
   };
 })();

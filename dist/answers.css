@@ -26,3 +26,29 @@
 @media(prefers-reduced-motion:reduce){#ask-song span,#answer-loading span{animation:none}}
 
 #download-answer{margin-top:16px;background:#603526;color:#fff9ec}
+
+#answer-dialog {
+  --gap-y: max(10px, env(safe-area-inset-top), env(safe-area-inset-bottom));
+  --gap-x: max(10px, env(safe-area-inset-left), env(safe-area-inset-right));
+  position: fixed;
+  inset: auto;
+  top: calc(var(--view-top, 0px) + var(--view-height, 100dvh) / 2);
+  left: calc(var(--view-left, 0px) + var(--view-width, 100vw) / 2);
+  transform: translate(-50%, -50%);
+  margin: 0;
+  width: min(440px, calc(var(--view-width, 100vw) - 2 * var(--gap-x)));
+  max-height: calc(var(--view-height, 100dvh) - 2 * var(--gap-y));
+  overflow: hidden;
+}
+#answer-dialog .answer-sheet {
+  max-height: calc(var(--view-height, 100dvh) - 2 * var(--gap-y) - 2px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+#answer-dialog .close { z-index: 1 }
+@media(max-height:650px) {
+  .answer-sheet{padding:16px}
+  #answer-card{padding:12px 0}
+  #answer-lines{margin:14px 0}
+  .answer-signature{margin-top:14px}
+}
