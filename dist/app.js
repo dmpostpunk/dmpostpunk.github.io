@@ -88,16 +88,19 @@ function showCassette(frame, url) {
   const duration = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1000;
   let cancelled = false;
   const loaded = new Promise(resolve => frame.addEventListener('load', resolve, { once: true }));
-  const shown = image.decode().then(() => {
+  let holdTimer;
+  const shown = image.decode().then(async () => {
     if (cancelled) return;
     image.style.opacity = '1';
-    if (duration) return image.animate([{ opacity: 0 }, { opacity: 1 }], duration).finished;
+    if (duration) await image.animate([{ opacity: 0 }, { opacity: 1 }], duration).finished;
+    if (!cancelled) await new Promise(resolve => { holdTimer = setTimeout(resolve, 1000); });
   }).catch(() => {});
 
   const timeout = setTimeout(finish, 8000);
   function finish() {
     cancelled = true;
     clearTimeout(timeout);
+    clearTimeout(holdTimer);
     image.remove();
   }
   stopLoader = finish;
