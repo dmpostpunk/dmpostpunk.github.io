@@ -12,7 +12,7 @@
 .answer-sheet label,.answer-sheet textarea{display:block}
 .answer-sheet textarea{width:100%;margin:8px 0 14px;padding:12px;border:1px solid #736c70;border-radius:3px;background:#27262c;color:inherit;font:inherit;resize:vertical}
 .answer-actions,#answer-links{display:flex;flex-wrap:wrap;gap:8px}
-.answer-sheet button,#answer-links a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:1px solid #736c70;border-radius:3px;padding:8px 12px;background:transparent;color:inherit;font:inherit}
+.answer-sheet button,#download-answer,#answer-links a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:1px solid #736c70;border-radius:3px;padding:8px 12px;background:transparent;color:inherit;font:inherit}
 .answer-sheet button[type=submit]{background:#ffbf87;color:#211a18}
 #answer-loading{color:#ffbf87;min-height:180px;display:grid;align-content:center;justify-items:center;gap:12px}
 #answer-loading span{width:144px;aspect-ratio:192/122;background:url('quote-tapes.webp') 0 0/400% 100%;animation:tape-strip 1s steps(4,end) infinite}
@@ -25,7 +25,7 @@
 #answer-links:not(:empty),#another-question{margin-top:14px}
 @media(prefers-reduced-motion:reduce){#ask-song span,#answer-loading span{animation:none}}
 
-#download-answer{margin-top:16px;background:#ffbf87;color:#211a18}
+#download-answer{text-decoration:none;margin-top:16px;background:#ffbf87;color:#211a18}
 
 #answer-dialog {
   --gap-y: max(10px, env(safe-area-inset-top), env(safe-area-inset-bottom));

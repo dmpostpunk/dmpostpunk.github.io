@@ -25,17 +25,13 @@
   const heading = byId('answer-heading');
   let cassette;
   const download = byId('download-answer');
-  download.onclick = () => {
+  function prepareDownload() {
     const canvas = drawSongCard(byId('answered-question').textContent,
       byId('answer-lines').textContent, byId('answer-song').textContent,
       card.querySelector('.answer-signature').textContent);
-    const link = document.createElement('a');
-    link.download = 'dmpostpunk-' + previous.entry.song + '.png';
-    link.href = canvas.toDataURL('image/png');
-    document.body.append(link);
-    link.click();
-    link.remove();
-  };
+    download.download = 'dmpostpunk-' + previous.entry.song + '.png';
+    download.href = canvas.toDataURL('image/png');
+  }
 
   let timer;
   let previous;
@@ -46,7 +42,7 @@
     clearTimeout(timer);
     cassette?.remove();
     cassette = undefined;
-    download.disabled = false;
+    download.removeAttribute('href');
     form.hidden = false;
     card.hidden = loading.hidden = again.hidden = download.hidden = true;
     links.replaceChildren();
@@ -189,13 +185,12 @@
       image.alt = 'Кассета «' + section.title + '»';
       image.hidden = true;
       image.className = 'answer-cassette';
-      download.disabled = true;
       image.onload = image.onerror = () => {
         if (cassette !== image) return;
-        download.disabled = false;
         image.hidden = !image.naturalWidth || card.hidden;
+        if (!image.hidden) prepareDownload();
       };
-      image.src = section.cassette;
+      image.src = window.CARD_CASSETTES[section.cassette];
       heading.append(image);
     }
     timer = setTimeout(() => {
@@ -206,6 +201,7 @@
       loading.hidden = true;
       card.hidden = download.hidden = false;
       if (cassette?.naturalWidth) cassette.hidden = false;
+      prepareDownload();
       addLinks(answer.entry, section);
       again.hidden = false;
       download.focus({ preventScroll: true });
