@@ -24,3 +24,5 @@
 .answer-signature{margin-top:24px;font-size:13px;color:#654d3a}
 #answer-links:not(:empty),#another-question{margin-top:14px}
 @media(prefers-reduced-motion:reduce){#ask-song span,#answer-loading span{animation:none}}
+
+#download-answer{margin-top:16px;background:#603526;color:#fff9ec}

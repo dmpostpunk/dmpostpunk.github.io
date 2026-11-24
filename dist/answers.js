@@ -10,6 +10,19 @@
   const card = byId('answer-card');
   const links = byId('answer-links');
   const again = byId('another-question');
+  const download = byId('download-answer');
+  download.onclick = () => {
+    const canvas = drawSongCard(byId('answered-question').textContent,
+      byId('answer-lines').textContent, byId('answer-song').textContent,
+      card.querySelector('.answer-signature').textContent);
+    const link = document.createElement('a');
+    link.download = 'dmpostpunk-' + previous.entry.song + '.png';
+    link.href = canvas.toDataURL('image/png');
+    document.body.append(link);
+    link.click();
+    link.remove();
+  };
+
   let timer;
   let previous;
   const pick = items => items[Math.floor(Math.random() * items.length)];
@@ -18,7 +31,7 @@
   function reset() {
     clearTimeout(timer);
     form.hidden = false;
-    card.hidden = loading.hidden = again.hidden = true;
+    card.hidden = loading.hidden = again.hidden = download.hidden = true;
     links.replaceChildren();
   }
   dialog.addEventListener('close', reset);
@@ -27,6 +40,71 @@
     input.value = pick(questions.filter(q => q !== input.value));
     input.focus();
   };
+
+  function drawSongCard(question, quote, song, signature) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1350;
+    const ctx = canvas.getContext('2d');
+    const left = 80;
+    const width = canvas.width - left * 2;
+    ctx.fillStyle = '#f7efd9';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#603526';
+    ctx.fillRect(0, 0, canvas.width, 22);
+    ctx.textBaseline = 'top';
+
+    function linesFor(text) {
+      const lines = [];
+      for (const paragraph of text.split('\n')) {
+        let line = '';
+        for (const word of paragraph.split(/\s+/).filter(Boolean)) {
+          if (line && ctx.measureText(line + ' ' + word).width > width) {
+            lines.push(line);
+            line = '';
+          }
+          if (line) line += ' ';
+          for (const char of word) {
+            if (line && ctx.measureText(line + char).width > width) {
+              lines.push(line);
+              line = '';
+            }
+            line += char;
+          }
+        }
+        lines.push(line);
+      }
+      return lines;
+    }
+    function block(text, y, size, style, family, maxHeight) {
+      let lines;
+      let leading;
+      do {
+        ctx.font = style + ' ' + size + 'px ' + family;
+        leading = Math.ceil(size * 1.23);
+        lines = linesFor(text);
+        if (lines.length * leading <= maxHeight) break;
+        size -= 2;
+      } while (size > 12);
+      for (const line of lines) {
+        ctx.fillText(line, left, y);
+        y += leading;
+      }
+      return y;
+    }
+    ctx.fillStyle = '#603526';
+    block('ДВОРЕЦ МОЛОДЕЖИ', 80, 34, 'bold', 'sans-serif', 60);
+    ctx.fillRect(left, 161, width, 2);
+    const end = block(question.replace(/\s+/g, ' ').trim(), 212, 43, 'normal', 'sans-serif', 300);
+    ctx.fillStyle = '#38271e';
+    const start = Math.max(440, end + 70);
+    const bottom = block(quote, start, 76, 'italic', 'Georgia, serif', 1000 - start);
+    ctx.fillStyle = '#603526';
+    block(song, bottom + 38, 32, 'bold', 'sans-serif', 120);
+    ctx.fillRect(left, 1180, width, 2);
+    block(signature, 1225, 32, 'normal', 'sans-serif', 90);
+    return canvas;
+  }
 
   function addLinks(entry) {
     const presave = presaves[entry.song];
@@ -74,10 +152,10 @@
       byId('answer-lines').textContent = answer.lines;
       byId('answer-song').textContent = 'Дворец молодежи — ' + answer.entry.song;
       loading.hidden = true;
-      card.hidden = false;
+      card.hidden = download.hidden = false;
       addLinks(answer.entry);
       again.hidden = false;
-      again.focus({ preventScroll: true });
+      download.focus({ preventScroll: true });
       dialog.scrollTop = 0;
     }, 3000);
   };

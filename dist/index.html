@@ -9,20 +9,21 @@
   <div class="answer-sheet">
     <h2 id="answer-title">Спроси у песни</h2>
     <form id="answer-form">
-      <label for="song-question">Спроси о чём хочешь</label>
-      <textarea id="song-question" rows="2" maxlength="180" required></textarea>
+      <label for="song-question">Какой вопрос у тебя на душе?</label>
+      <textarea id="song-question" placeholder="Например, что мне пора отпустить?" rows="2" maxlength="180" required></textarea>
       <div class="answer-actions">
         <button type="button" id="random-question">Случайный вопрос</button>
-        <button type="submit">Получить ответ</button>
+        <button type="submit">Спросить у песни</button>
       </div>
     </form>
-    <div id="answer-loading" role="status" hidden><span aria-hidden="true"></span>Ищем строку…</div>
+    <div id="answer-loading" role="status" hidden><span aria-hidden="true"></span>Перематываем кассету…</div>
     <section id="answer-card" aria-live="polite" hidden>
       <p id="answered-question"></p>
       <blockquote id="answer-lines"></blockquote>
       <p id="answer-song"></p>
       <p class="answer-signature">Найди свой ответ на dmpostpunk.github.io</p>
     </section>
+    <button id="download-answer" type="button" hidden>Скачать картинку</button>
     <div id="answer-links"></div>
     <button id="another-question" type="button" hidden>Задать ещё вопрос</button>
   </div>
