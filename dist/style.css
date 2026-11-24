@@ -52,3 +52,20 @@ main{margin-top:calc(clamp(10px,2vh,28px) / 3)}
 #player > iframe.song-player{height:244px}
 #player > iframe.player-ready{opacity:1}
 @media(prefers-reduced-motion:reduce){#player:has(iframe),#player > iframe{transition:none}}
+
+#player > .cassette-loader {
+  position:absolute;
+  inset:0;
+  z-index:1;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#f8f6f1;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 220ms ease-in-out;
+}
+#player > .cassette-loader.shown { opacity:1 }
+@media (prefers-reduced-motion:reduce) {
+  #player > .cassette-loader { transition:none }
+}

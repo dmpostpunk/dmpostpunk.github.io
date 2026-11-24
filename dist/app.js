@@ -75,6 +75,20 @@ window.addEventListener('blur', () => setTimeout(rememberFocus, 0));
 // A cross-origin player may take focus without firing focus on the iframe element.
 setInterval(rememberFocus, 250);
 
+const cassette = document.createElement('img');
+cassette.className = 'cassette-loader';
+cassette.alt = '';
+let loaderUrl;
+let pendingLoader = false;
+cassette.onload = () => {
+  if (pendingLoader) cassette.classList.add('shown');
+};
+
+function hideCassette() {
+  pendingLoader = false;
+  cassette.classList.remove('shown');
+}
+
 let backdrop;
 let cancelPendingReveal = () => {};
 
@@ -102,6 +116,7 @@ function loadPlayer(title, src, isSong = false) {
     visibleFrame?.remove();
   }
   cancelPendingReveal();
+  hideCassette();
   if (!visibleFrame) {
     player.replaceChildren();
     player.classList.toggle('song-slot', isSong);
@@ -116,6 +131,12 @@ function loadPlayer(title, src, isSong = false) {
     frameTabs.set(visibleFrame, sectionTab);
     updateIndicators(sectionTab);
     return;
+  }
+  if (loaderUrl) {
+    pendingLoader = true;
+    if (cassette.getAttribute('src') !== loaderUrl) cassette.setAttribute('src', loaderUrl);
+    if (!cassette.isConnected) player.append(cassette);
+    if (cassette.complete && cassette.naturalWidth) cassette.classList.add('shown');
   }
   const frame = document.createElement('iframe');
   frame.src = src;
@@ -132,6 +153,7 @@ function loadPlayer(title, src, isSong = false) {
   function reveal() {
     if (visibleFrame !== frame) return;
     player.classList.toggle('song-slot', isSong);
+    hideCassette();
     frame.classList.add('player-ready');
     frame.inert = false;
     cancelPendingReveal();
@@ -216,6 +238,7 @@ function questionCard(q) {
   return button;
 }
 function resetSection(album = {}) {
+  loaderUrl = album.loader;
   trackButtons.clear();
   songList.replaceChildren();
   songList.hidden = true;
