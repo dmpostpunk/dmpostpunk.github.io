@@ -102,11 +102,14 @@ function loadPlayer(title, src, isSong = false) {
     visibleFrame?.remove();
   }
   cancelPendingReveal();
-  if (!visibleFrame) player.replaceChildren();
-  player.classList.toggle('song-slot', isSong);
+  if (!visibleFrame) {
+    player.replaceChildren();
+    player.classList.toggle('song-slot', isSong);
+  }
 
   if (lastFocusedFrame?.src === src) {
     visibleFrame = lastFocusedFrame;
+    player.classList.toggle('song-slot', isSong);
     clearBackdrop();
     visibleFrame.style.display = '';
     visibleFrame.inert = false;
@@ -123,17 +126,22 @@ function loadPlayer(title, src, isSong = false) {
   visibleFrame = frame;
   frame.addEventListener('focus', rememberFocus);
   frame.inert = true;
+  let settleTimer;
   let paint;
   let fadeTimer;
   function reveal() {
     if (visibleFrame !== frame) return;
+    player.classList.toggle('song-slot', isSong);
     frame.classList.add('player-ready');
     frame.inert = false;
     cancelPendingReveal();
     fadeTimer = setTimeout(clearBackdrop, 240);
   }
   function afterLoad() {
-    paint = requestAnimationFrame(() => { paint = requestAnimationFrame(reveal); });
+    // The embed can still lay out its controls after its load event.
+    settleTimer = setTimeout(() => {
+      paint = requestAnimationFrame(() => { paint = requestAnimationFrame(reveal); });
+    }, 250);
   }
   // A stalled embed should still expose the provider's loading or error UI.
   const timeout = setTimeout(reveal, 8000);
@@ -141,6 +149,7 @@ function loadPlayer(title, src, isSong = false) {
   cancelPendingReveal = () => {
     clearTimeout(timeout);
     clearTimeout(fadeTimer);
+    clearTimeout(settleTimer);
     cancelAnimationFrame(paint);
     frame.removeEventListener('load', afterLoad);
   };

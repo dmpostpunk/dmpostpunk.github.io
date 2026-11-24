@@ -45,10 +45,10 @@ main{margin-top:calc(clamp(10px,2vh,28px) / 3)}
 @keyframes sound-bar{from{transform:scaleY(.32)}to{transform:scaleY(1)}}
 @media(prefers-reduced-motion:reduce){.sound-indicator i{animation:none}.sound-indicator i:first-child{height:45%}}
 
-/* Reserve the target size before navigating the embedded document. */
-#player:has(iframe){position:relative;height:max(220px,min(556px,65svh));overflow:hidden;border-radius:5px}
+/* Keep the outgoing height until the incoming player is revealed. */
+#player:has(iframe){position:relative;height:max(220px,min(556px,65svh));overflow:hidden;border-radius:5px;transition:height .24s ease-in-out}
 #player.song-slot{height:244px}
 #player > iframe{position:absolute;inset:0;width:100%;height:max(220px,min(556px,65svh));min-height:0;opacity:0;transition:opacity .22s ease}
 #player > iframe.song-player{height:244px}
 #player > iframe.player-ready{opacity:1}
-@media(prefers-reduced-motion:reduce){#player > iframe{transition:none}}
+@media(prefers-reduced-motion:reduce){#player:has(iframe),#player > iframe{transition:none}}
