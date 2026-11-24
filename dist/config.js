@@ -61,7 +61,7 @@ window.SITE = {
         }
       ]
     },
-    { title: 'Апрель', background: 'scenes/april.png', embed: 'https://music.yandex.ru/iframe/album/36070176' },
+    { title: 'Апрель', background: 'scenes/april.jpg', embed: 'https://music.yandex.ru/iframe/album/36070176' },
   ],
   // Для новой песни добавьте строку с названием и адресом или полным кодом iframe.
   allSongs: { title: 'Счастье мое, я здесь и я жду тебя', background: 'scenes/all-songs.png', credit: 'Автор фото: Алексей Бусыгин' },
