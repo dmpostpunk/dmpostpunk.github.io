@@ -92,12 +92,12 @@ window.SITE = {
       'Apple Music': 'https://music.apple.com/ru/artist/дворец-молодежи/1784722133'
     },
     'Соцсети': {
-      'BandLink': 'https://band.link/dm_postpunk',
       'Telegram': 'https://t.me/dm_postpunk',
       'ВКонтакте': 'https://vk.com/dm_postpunk',
       'Instagram': 'https://www.instagram.com/dm_postpunk/',
       'YouTube': 'https://www.youtube.com/@dm_postpunk',
-      'TikTok': 'https://www.tiktok.com/@dm_postpunk'
+      'TikTok': 'https://www.tiktok.com/@dm_postpunk',
+      'BandLink': 'https://band.link/dm_postpunk'
     }
   }
 };

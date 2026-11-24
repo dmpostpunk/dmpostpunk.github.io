@@ -8,8 +8,8 @@ iframe.song-player{height:244px}
 #song-list button:hover,#song-list button[aria-pressed=true]{background:#ead8b4;color:#30251e}
 @media(max-width:700px){main{width:90vw;margin:6vh 5vw 24px}iframe{height:min(556px,65svh)}}
 
-h1 img{width:clamp(78px,8vw,135px)}
-@media(max-width:600px){h1 img{width:62.5px}}
+h1 img{width:clamp(117px,12vw,202.5px)}
+@media(max-width:600px){h1 img{width:93.75px}}
 #album-cards:not(:empty){display:grid;gap:clamp(8px,1vw,18px);margin-top:16px}
 #album-cards.track-cards{width:min(92vw,850px);grid-template-columns:repeat(2,minmax(0,1fr))}
 #album-cards.questions{width:min(92vw,1260px);grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -27,6 +27,7 @@ main{margin-top:calc(clamp(10px,2vh,28px) / 3)}
 @media(max-width:700px){main{margin-top:2vh}}
 @media(max-width:600px){header{padding-bottom:calc(20px / 3)}}
 #tabs>*{display:inline-flex;align-items:center;justify-content:center;min-height:40px}
+#tabs #soon span{font-size:.75em;line-height:1;margin-left:.35em}
 #tabs #soon{background:#78452e;color:#fff3dd}
 #tabs #soon:hover{background:#925433}
 .enlarge{display:block;border:0;padding:0;background:transparent;cursor:zoom-in}
@@ -34,3 +35,7 @@ main{margin-top:calc(clamp(10px,2vh,28px) / 3)}
 #card-view img,#about>img{height:auto;object-fit:contain}
 #credit{position:fixed;right:12px;bottom:10px;z-index:1;padding:4px 9px;border-radius:3px;background:#281e17d9;color:white;font:14px/1.4 Georgia,serif;pointer-events:none}
 #groups{margin-top:12px}
+
+@media(max-width:700px){
+  #credit:not([hidden]){display:block;position:static;margin-top:8px;padding:0;background:transparent;font-size:12px;text-shadow:0 1px 3px #211812}
+}
