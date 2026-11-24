@@ -4,6 +4,7 @@ window.SITE = {
     { title: 'ДМ', background: 'backgrounds/01-evening.jpg', embed: 'https://music.yandex.ru/iframe/album/40051807' },
     {
       "title": "Мой компьютер",
+      "credit": "Дизайн карточек: Алексей Бусыгин",
       "background": "my-computer/monitor.png",
       "tracks": [
         {

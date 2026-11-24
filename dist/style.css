@@ -33,9 +33,6 @@ main{margin-top:calc(clamp(10px,2vh,28px) / 3)}
 .enlarge{display:block;border:0;padding:0;background:transparent;cursor:zoom-in}
 #card-view{width:min(94vw,90svh,1080px);max-height:94svh}
 #card-view img,#about>img{height:auto;object-fit:contain}
-#credit{position:fixed;right:12px;bottom:10px;z-index:1;padding:4px 9px;border-radius:3px;background:#281e17d9;color:white;font:14px/1.4 Georgia,serif;pointer-events:none}
+#credit:not([hidden]){display:block;width:fit-content;margin:8px 0 0;padding:3px 7px;border-radius:3px;background:#281e17c9;color:#fff6df;font:12px/1.4 Georgia,serif;text-align:left}
 #groups{margin-top:12px}
 
-@media(max-width:700px){
-  #credit:not([hidden]){display:block;position:static;margin-top:8px;padding:0;background:transparent;font-size:12px;text-shadow:0 1px 3px #211812}
-}

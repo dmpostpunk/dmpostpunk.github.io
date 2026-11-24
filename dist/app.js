@@ -107,7 +107,10 @@ function resetSection(album = {}) {
   songList.replaceChildren();
   songList.hidden = true;
   gallery.replaceChildren();
-  setBackground(album.background, album.credit);
+  const credit = byId('credit');
+  credit.textContent = album.credit || '';
+  credit.hidden = !album.credit;
+  setBackground(album.background);
 }
 function showTracks(album) {
   songList.hidden = false;
@@ -168,7 +171,7 @@ const scenes = window.BACKGROUNDS;
 let current = 0;
 let pinnedBackground;
 let request = 0;
-function setBackground(path, credit = '') {
+function setBackground(path) {
   pinnedBackground = path;
   const url = path || (scenes[current] && 'backgrounds/'+encodeURIComponent(scenes[current]));
   const token = ++request;
@@ -180,8 +183,6 @@ function setBackground(path, credit = '') {
     const scene = byId('scene');
     const previous = [...scene.children];
     scene.append(img);
-    byId('credit').textContent = credit;
-    byId('credit').hidden = !credit;
     Promise.allSettled(img.getAnimations().map(animation => animation.finished))
       .then(() => previous.forEach(layer => layer.remove()));
   };
