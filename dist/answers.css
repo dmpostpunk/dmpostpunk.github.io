@@ -15,8 +15,13 @@
 .answer-sheet button,#download-answer,#answer-links a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:1px solid #736c70;border-radius:3px;padding:8px 12px;background:transparent;color:inherit;font:inherit}
 .answer-sheet button[type=submit]{background:#ffbf87;color:#211a18}
 #answer-loading{color:#ffbf87;min-height:180px;display:grid;align-content:center;justify-items:center;gap:12px}
-#answer-loading span{width:144px;aspect-ratio:192/122;background:url('quote-tapes.webp') 0 0/400% 100%;animation:tape-strip 1s steps(4,end) infinite}
-@keyframes tape-strip{to{background-position:133.333% 0}}
+#answer-loading span{width:144px;aspect-ratio:192/122;background:transparent var(--tape-0) center/contain no-repeat;animation:tape-strip 1s steps(1,end) infinite}
+@keyframes tape-strip{
+  0%,100%{background-image:var(--tape-0)}
+  25%{background-image:var(--tape-1)}
+  50%{background-image:var(--tape-2)}
+  75%{background-image:var(--tape-3)}
+}
 #answer-card{padding:20px 0;border-block:1px solid #51494a}
 #answered-question{font-size:15px;color:#c8bcbd}
 #answer-lines{margin:22px 0 16px;font:italic clamp(24px,6.3vw,34px)/1.17 Georgia,serif;white-space:pre-line;letter-spacing:-.025em}
