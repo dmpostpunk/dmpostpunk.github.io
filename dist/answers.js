@@ -19,6 +19,9 @@
   const input = byId('song-question');
   const form = byId('answer-form');
   const loading = byId('answer-loading');
+  Object.values(window.CARD_CASSETTES).forEach((src, index) => {
+    loading.style.setProperty('--tape-' + index, 'url("' + src + '")');
+  });
   const card = byId('answer-card');
   const links = byId('answer-links');
   const again = byId('another-question');
