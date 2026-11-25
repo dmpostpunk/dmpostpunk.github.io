@@ -25,7 +25,7 @@
   const heading = byId('answer-heading');
   let cassette;
   const logo = new Image();
-  logo.onload = () => { if (!card.hidden && !cassette?.naturalWidth) prepareDownload(); };
+  logo.onload = () => { if (!card.hidden) prepareDownload(); };
   logo.src = window.CARD_LOGO;
   const download = byId('download-answer');
   const mobile = navigator.userAgentData?.mobile || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
@@ -45,11 +45,10 @@
   }
 
   function prepareDownload() {
-    const artwork = cassette?.naturalWidth ? cassette : logo;
-    if (!artwork.naturalWidth) return;
+    if (!logo.naturalWidth || !cassette?.naturalWidth) return;
     const canvas = drawSongCard(byId('answered-question').textContent,
       byId('answer-lines').textContent, byId('answer-song').textContent,
-      card.querySelector('.answer-signature').textContent, artwork);
+      card.querySelector('.answer-signature').textContent);
     if (mobile) {
       clearImageLink();
       const version = imageVersion;
@@ -113,7 +112,7 @@
       .replace(/ (?=(?:же|бы|ли)(?=[\s,.!?…]|$)|[—–] )/giu, '\u00a0');
   }
 
-  function drawSongCard(question, quote, song, signature, artwork) {
+  function drawSongCard(question, quote, song, signature) {
     const canvas = document.createElement('canvas');
     canvas.width = 1080;
     canvas.height = 1350;
@@ -167,18 +166,23 @@
     ctx.fillStyle = '#ffbf87';
     ctx.font = 'bold 44px sans-serif';
     ctx.fillText('Спроси у ДМ', left, 80);
-    const scale = Math.min(176 / artwork.naturalWidth, 108 / artwork.naturalHeight);
-    const w = artwork.naturalWidth * scale;
-    const h = artwork.naturalHeight * scale;
-    ctx.drawImage(artwork, canvas.width - left - w, 96 - h / 2, w, h);
+    const logoScale = Math.min(176 / logo.naturalWidth, 108 / logo.naturalHeight);
+    const logoWidth = logo.naturalWidth * logoScale;
+    const logoHeight = logo.naturalHeight * logoScale;
+    ctx.drawImage(logo, canvas.width - left - logoWidth, 96 - logoHeight / 2, logoWidth, logoHeight);
     ctx.fillRect(left, 161, width, 2);
     ctx.fillStyle = '#c8bcbd';
     const end = block(question.replace(/\s+/g, ' ').trim(), 212, 43, 'normal', 'sans-serif', 300);
     ctx.fillStyle = '#f6efe3';
     const start = Math.max(440, end + 70);
-    const bottom = block(quote, start, 76, 'italic', 'Georgia, serif', 1000 - start);
+    const bottom = block(quote, start, 76, 'italic', 'Georgia, serif', 818 - start);
     ctx.fillStyle = '#ffbf87';
-    block(song, bottom + 38, 32, 'bold', 'sans-serif', 120);
+    const songEnd = block(song, bottom + 38, 32, 'bold', 'sans-serif', 120);
+    const tapeScale = Math.min(264 / cassette.naturalWidth, 162 / cassette.naturalHeight);
+    const tapeWidth = cassette.naturalWidth * tapeScale;
+    const tapeHeight = cassette.naturalHeight * tapeScale;
+    ctx.drawImage(cassette, (canvas.width - tapeWidth) / 2,
+      (songEnd + 1180 - tapeHeight) / 2, tapeWidth, tapeHeight);
     ctx.fillRect(left, 1180, width, 2);
     ctx.font = '32px sans-serif';
     const domain = card.querySelector('.answer-signature a').textContent;
@@ -236,20 +240,21 @@
     timer = setTimeout(() => {
       const answer = nextAnswer();
       const section = sectionFor(answer.entry);
-      if (section?.cassette) {
-        const image = new Image();
-        cassette = image;
+      const matchingTape = window.CARD_CASSETTES[section?.cassette];
+      const image = new Image();
+      cassette = image;
+      image.onload = () => {
+        if (cassette !== image || card.hidden) return;
+        image.hidden = false;
+        prepareDownload();
+      };
+      if (matchingTape) {
         image.alt = 'Кассета «' + section.title + '»';
         image.hidden = true;
         image.className = 'answer-cassette';
-        image.onload = image.onerror = () => {
-          if (cassette !== image) return;
-          image.hidden = !image.naturalWidth || card.hidden;
-          if (!image.hidden) prepareDownload();
-        };
-        image.src = window.CARD_CASSETTES[section.cassette];
         heading.append(image);
       }
+      image.src = matchingTape || pick(Object.values(window.CARD_CASSETTES));
       previous = answer;
       byId('answered-question').textContent = question;
       byId('answer-lines').textContent = formatQuote(answer.lines);
