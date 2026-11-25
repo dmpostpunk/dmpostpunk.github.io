@@ -188,7 +188,7 @@ function showTracks(album, tracks) {
       loadPlayer(album.title, collectionUrl);
     });
     trackButtons.set(collectionUrl, button);
-    if (selectedTracks.get(tracks) === album) selectedButton = button;
+    selectedButton = button;
   }
   for (const track of tracks) {
     const src = embedUrl(track.iframe);
