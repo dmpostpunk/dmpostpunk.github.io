@@ -4,6 +4,7 @@ window.SITE = {
     { title: 'ДМ', cassette: 'cassettes/dm.png', background: 'backgrounds/01-evening.jpg', embed: 'https://music.yandex.ru/iframe/album/40051807' },
     {
       "title": "Мой компьютер",
+      "embed": "https://music.yandex.ru/iframe/album/37730343",
       "cassette": "cassettes/my-computer.png",
       "credit": "Дизайн карточек: Алексей Бусыгин",
       "background": "my-computer/monitor.png",
@@ -65,7 +66,7 @@ window.SITE = {
     { title: 'Апрель', cassette: 'cassettes/april.png', background: 'scenes/april.jpg', embed: 'https://music.yandex.ru/iframe/album/36070176' },
   ],
   // Для новой песни добавьте строку с названием и адресом или полным кодом iframe.
-  allSongs: { cassette: 'cassettes/happy.png', title: 'Счастье мое, я здесь и я жду тебя', background: 'scenes/all-songs.png', credit: 'Автор фото: Алексей Бусыгин' },
+  allSongs: { embed: 'https://music.yandex.ru/iframe/playlist/ad-chaik/1070', cassette: 'cassettes/happy.png', title: 'Счастье мое, я здесь и я жду тебя', background: 'scenes/all-songs.png', credit: 'Автор фото: Алексей Бусыгин' },
   songs: [
     { song: 'Поезда', iframe: 'https://music.yandex.ru/iframe/album/42083980/track/136041767' },
     { song: 'Панельки', iframe: 'https://music.yandex.ru/iframe/album/39958696/track/146676507' },

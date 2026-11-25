@@ -180,6 +180,21 @@ const selectedTracks = new Map();
 function showTracks(album, tracks) {
   songList.hidden = false;
   let selectedButton;
+  const collectionUrl = embedUrl(album?.embed);
+  const questions = album?.questions || [];
+  function showAlbumCards() {
+    gallery.className = questions.length ? 'questions' : '';
+    gallery.replaceChildren(...questions.map(questionCard));
+  }
+  if (collectionUrl) {
+    const button = addChoice(songList, questions.length ? 'Об альбоме' : 'Все песни', () => {
+      selectedTracks.set(tracks, album);
+      loadPlayer(album.title, collectionUrl);
+      showAlbumCards();
+    });
+    trackButtons.set(collectionUrl, button);
+    selectedButton = button;
+  }
   for (const track of tracks) {
     const src = embedUrl(track.iframe);
     if (!src) continue;
@@ -194,10 +209,7 @@ function showTracks(album, tracks) {
     trackButtons.set(src, button);
     if (!selectedButton || selectedTracks.get(tracks) === track) selectedButton = button;
   }
-  if (album?.questions?.length) addChoice(songList, 'Об альбоме', () => {
-    gallery.className = 'questions';
-    gallery.replaceChildren(...album.questions.map(questionCard));
-  });
+  if (!collectionUrl && questions.length) addChoice(songList, 'Об альбоме', showAlbumCards);
   selectedButton?.click();
 }
 for (const album of cfg.albums) {
