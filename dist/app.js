@@ -180,6 +180,16 @@ const selectedTracks = new Map();
 function showTracks(album, tracks) {
   songList.hidden = false;
   let selectedButton;
+  const collectionUrl = embedUrl(album?.embed);
+  if (collectionUrl) {
+    const button = addChoice(songList, 'Все песни', () => {
+      selectedTracks.set(tracks, album);
+      gallery.replaceChildren();
+      loadPlayer(album.title, collectionUrl);
+    });
+    trackButtons.set(collectionUrl, button);
+    if (selectedTracks.get(tracks) === album) selectedButton = button;
+  }
   for (const track of tracks) {
     const src = embedUrl(track.iframe);
     if (!src) continue;
