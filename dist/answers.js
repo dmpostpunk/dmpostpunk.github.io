@@ -178,6 +178,7 @@
     const bottom = block(quote, start, 76, 'italic', 'Georgia, serif', 818 - start);
     ctx.fillStyle = '#ffbf87';
     const songEnd = block(song, bottom + 38, 32, 'bold', 'sans-serif', 120);
+    ctx.imageSmoothingQuality = 'high';
     const tapeScale = Math.min(264 / cassette.naturalWidth, 162 / cassette.naturalHeight);
     const tapeWidth = cassette.naturalWidth * tapeScale;
     const tapeHeight = cassette.naturalHeight * tapeScale;
@@ -254,7 +255,18 @@
         image.className = 'answer-cassette';
         heading.append(image);
       }
-      image.src = matchingTape || pick(Object.values(window.CARD_CASSETTES));
+      const tapePath = matchingTape ? section.cassette : pick(Object.keys(window.CARD_CASSETTES));
+      image.onerror = () => {
+        image.onerror = null;
+        image.src = window.CARD_CASSETTES[tapePath];
+      };
+      if (location.protocol === 'file:') {
+        // Use the hosted original to keep the local canvas exportable.
+        image.crossOrigin = 'anonymous';
+        image.src = 'https://dmpostpunk.github.io/' + tapePath;
+      } else {
+        image.src = tapePath;
+      }
       previous = answer;
       byId('answered-question').textContent = question;
       byId('answer-lines').textContent = formatQuote(answer.lines);
