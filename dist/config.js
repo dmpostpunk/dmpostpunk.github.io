@@ -1,4 +1,5 @@
 window.SITE = {
+  metrikaId: null,
   // Добавляйте альбомы в порядке показа. В embed вставьте весь iframe или его src.
   albums: [
     { title: 'ДМ', cassette: 'cassettes/dm.png', background: 'backgrounds/01-evening.jpg', embed: 'https://music.yandex.ru/iframe/album/40051807' },
