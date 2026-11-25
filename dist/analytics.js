@@ -1,16 +1,6 @@
 (() => {
-  const id = Number(window.SITE?.metrikaId);
-  if (!Number.isSafeInteger(id) || id <= 0 || location.hostname !== 'dmpostpunk.github.io') return;
-
-  window.ym = window.ym || function () {
-    (window.ym.a = window.ym.a || []).push(arguments);
-  };
-  window.ym.l = Date.now();
-  window.ym(id, 'init', { accurateTrackBounce: true, webvisor: false, trackLinks: false });
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = 'https://mc.yandex.ru/metrika/tag.js';
-  document.head.append(script);
+  if (typeof window.ym !== 'function') return;
+  const id = 114676517;
 
   document.addEventListener('click', event => {
     if (!event.isTrusted) return;
