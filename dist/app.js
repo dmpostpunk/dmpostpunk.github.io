@@ -204,10 +204,16 @@ function showTracks(album, tracks) {
     trackButtons.set(src, button);
     if (!selectedButton || selectedTracks.get(tracks) === track) selectedButton = button;
   }
-  if (album?.questions?.length) addChoice(songList, 'Об альбоме', () => {
-    gallery.className = 'questions';
-    gallery.replaceChildren(...album.questions.map(questionCard));
-  });
+  if (album?.questions?.length) {
+    const aboutButton = addChoice(songList, 'Об альбоме', () => {
+      gallery.className = 'questions';
+      gallery.replaceChildren(...album.questions.map(questionCard));
+    });
+    if (collectionUrl && !selectedTracks.has(tracks)) {
+      trackButtons.get(collectionUrl).click();
+      selectedButton = aboutButton;
+    }
+  }
   selectedButton?.click();
 }
 for (const album of cfg.albums) {
