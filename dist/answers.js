@@ -234,7 +234,7 @@
   }
   form.onsubmit = event => {
     event.preventDefault();
-    const question = input.value.trim() || 'Без вопроса';
+    const question = input.value.trim() || 'Цитата дня';
     if (form.hidden) return;
     form.hidden = true;
     loading.hidden = false;
