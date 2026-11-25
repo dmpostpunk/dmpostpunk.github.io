@@ -107,6 +107,12 @@
     input.focus();
   };
 
+  function formatQuote(text) {
+    return text
+      .replace(/(?<!\S)(в|во|к|ко|с|со|у|о|об|от|до|из|за|на|по|под|над|без|для|при|через|а|и|но|да|не|ни|я|мы|ты) (?=\S)/giu, '$1\u00a0')
+      .replace(/ (?=(?:же|бы|ли)(?=[\s,.!?…]|$)|[—–] )/giu, '\u00a0');
+  }
+
   function drawSongCard(question, quote, song, signature, artwork) {
     const canvas = document.createElement('canvas');
     canvas.width = 1080;
@@ -124,7 +130,7 @@
       const lines = [];
       for (const paragraph of text.split('\n')) {
         let line = '';
-        for (const word of paragraph.split(/\s+/).filter(Boolean)) {
+        for (const word of paragraph.split(/[ \t]+/).filter(Boolean)) {
           if (line && ctx.measureText(line + ' ' + word).width > width) {
             lines.push(line);
             line = '';
@@ -246,7 +252,7 @@
       }
       previous = answer;
       byId('answered-question').textContent = question;
-      byId('answer-lines').textContent = answer.lines;
+      byId('answer-lines').textContent = formatQuote(answer.lines);
       byId('answer-song').textContent = 'Дворец молодежи — ' + answer.entry.song;
       loading.hidden = true;
       card.hidden = false;
